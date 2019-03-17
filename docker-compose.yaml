@@ -16,7 +16,7 @@ services:
     expose:
       - "3316"
     volumes:
-      - mysql-master-data:/home/mysql/data
+      - ./data/mysql-master-data:/var/lib/mysql
       - ./init-db-sql/sakila-schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./init-db-sql/sakila-data.sql:/docker-entrypoint-initdb.d/2-data.sql
       - ./init-db-sql/init-master.sh:/docker-entrypoint-initdb.d/3-init-master.sh
@@ -26,6 +26,8 @@ services:
       "--character-set-server=utf8mb4",
       "--collation-server=utf8mb4_unicode_ci",
       "--innodb_flush_log_at_trx_commit=1",
+      "--bind-address=0.0.0.0",
+      "--default-authentication-plugin=mysql_native_password",
       "--sync_binlog=1"
       ]
 
@@ -40,7 +42,7 @@ services:
     depends_on:
       - mysql-master
     volumes:
-      - mysql-node-1-data:/home/mysql/data
+      - ./data/mysql-node-1-data:/var/lib/mysql
       - ./init-db-sql/sakila-schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./init-db-sql/sakila-data.sql:/docker-entrypoint-initdb.d/2-data.sql
       - ./init-db-sql/init-node.sh:/docker-entrypoint-initdb.d/3-init-node.sh
@@ -48,6 +50,8 @@ services:
       "--server-id=${NODE_1_SERVER_ID}",
       "--character-set-server=utf8mb4",
       "--collation-server=utf8mb4_unicode_ci",
+      "--bind-address=0.0.0.0",
+      "--default-authentication-plugin=mysql_native_password",
       "--relay-log=mysql-node-relay-bin"
       ]
   
@@ -57,13 +61,15 @@ services:
     ports:
       - "3318:3306"
     volumes: 
-      - mysql-node-2-data:/home/mysql/data
+      - ./data/mysql-node-2-data:/var/lib/mysql
       - ./init-db-sql/sakila-schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./init-db-sql/sakila-data.sql:/docker-entrypoint-initdb.d/2-data.sql
       - ./init-db-sql/init-node.sh:/docker-entrypoint-initdb.d/3-init-node.sh
     command: [
       "--server-id=${NODE_2_SERVER_ID}",
       "--character-set-server=utf8mb4",
+      "--bind-address=0.0.0.0",
+      "--default-authentication-plugin=mysql_native_password",
       "--collation-server=utf8mb4_unicode_ci",
       "--relay-log=mysql-node-relay-bin"
       ]
